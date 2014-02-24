@@ -1,5 +1,6 @@
 # More info on url fields: http://finance.yahoo.com/d/quotes.csv?s=AAPL+GOOG+MSFT&f=nab
 # Symbols were taken from here: ftp://ftp.nasdaqtrader.com/SymbolDirectory/
+# Right now this script only fetches max and min value of stocks for one day. 
 
 import urllib2
 import sys
@@ -57,7 +58,7 @@ def getSymbols(symbolFile):
 	return symbols
 
 def writeStockInfo(stockCsv,outFile):
-	stockFile = open(outFile,"r")
+	stockFile = open(outFile,"w")
 	for stock in stockCsv:
 		stockFile.write(stock)
 		stockFile.write('\n')
@@ -81,4 +82,5 @@ if __name__=='__main__':
 			response.close();
 			totalStocks+=1
 		print 'Total ',totalStocks,' number of stock info retrieved'
-		writeStockInfo(stockCsv,sys.argv[0])
+		print 'Writing to file: ',sys.argv[1]
+		writeStockInfo(stockCsv,sys.argv[1])
