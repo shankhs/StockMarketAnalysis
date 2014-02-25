@@ -25,6 +25,13 @@ class Company:
 		print(metaInfo.split('|'),'\n')
 		print(self.symbol,self.securityName,self.marketCategory,self.testIssue,self.financialStatus,self.roundLotsize)
 
+def getData(stock, period):
+        url = 'http://ichart.finance.yahoo.com/table.csv?s='+stock+'&a=00&b=1&c=1900&d=11&e=31&f=2015&g='+period+'&ignore=.csv'
+        page = urllib2.urlopen(url).read()
+        filename = stock+'.csv'
+        with open(filename, 'w') as f:
+                f.write(page)
+        
 def getSymbols(symbolFile):
 	symbolsInfo = [s for s in open(symbolFile)]
 	symbols=[]
