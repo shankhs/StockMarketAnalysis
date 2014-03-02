@@ -1,0 +1,72 @@
+from __future__ import division
+import sys, math, random
+import numpy as np
+
+
+def Distance(a,b):
+    #a,b are in the form of numpy.array
+    if a.size!=b.size: raise Exception("a and b are different in size")
+    return sum((a-b)**2)/a.size
+
+def ClusterLabel(Samples,Centers):
+    #Samples and Centers are both lists of arrays.
+    #We want to label each sample with its nearest center.
+    return [np.array([Distance(Samples[i],Centers[j]) \
+                      for j in np.arange(len(Centers))]).argmin() for i in np.arange(len(Samples))]
+
+def FindCenter(Samples):
+    #Find the center of samples by averaging them or spot their median, depending on what we need.
+    #Samples is a list of arrays
+    return sum(Samples)/len(Samples)
+
+def NewCenter(Samples,Labels,K):
+    #Samples is a list of arrays; labels is a list of indices; K are the number of possible centers.
+    #Given the label of each sample, we find the center of samples with the same label by averaging their coordinates
+    NewSamples=[[] for i in xrange(K)]
+    for i in xrange(len(Labels)):
+        NewSamples[Labels[i]].append(Samples[i])
+    return [FindCenter(NewSamples[i]) for i in xrange(K)]
+
+def CenterInit(Samples,K):
+    #Initialize the K centers.
+    Labels=[];
+    Center=[];
+    for i in xrange(K):    
+        a=random.randint(0,K-1)
+        while a in Labels:
+            a=random.randint(0,K-1)
+        Labels.append(a)
+        Center.append(Samples[a])
+    return Center
+
+
+def CompareCenters(OldCenter,NewCenter,Precision):
+    #Check if the centers are converging to a stable status
+    SUM=0;
+    for i in xrange(len(OldCenter)):
+        SUM=SUM+Distance(OldCenter[i],NewCenter[i])
+    return SUM>Precision
+    
+def Kmeans(Samples, K,Prec):
+    center0=[Samples[0] for i in xrange(K)]
+    center1=CenterInit(Samples,K);
+    while CompareCenters(center0,center1,Prec):
+        center0=center1
+        label=ClusterLabel(Samples,center1)
+        center1=NewCenter(Samples,label,K)
+    ANS=[center1,label]
+    return ANS
+    
+    
+if __name__=='__main__':
+    A=[np.array([0, 0, 2, 9]), np.array([7, 0, 3, 6]), np.array([7, 9, 4, 6]), \
+       np.array([ 2, 10,  5,  1]), np.array([ 3,  6, 10,  0]), np.array([4, 5, 5, 1]),\
+       np.array([6, 0, 6, 5]), np.array([0, 1, 6, 8]), np.array([7, 5, 2, 7]),\
+       np.array([ 7,  5, 10,  5]), np.array([7, 8, 5, 0]), np.array([ 9,  0, 10,  4]),\
+       np.array([7, 6, 2, 9]), np.array([8, 8, 3, 3]), np.array([ 2,  6,  2, 10]), \
+       np.array([10,  1,  7,  3]), np.array([9, 9, 4, 7]), np.array([6, 7, 8, 3]), \
+       np.array([8, 6, 7, 3]), np.array([7, 8, 2, 6])]
+    K=3
+    Precision=0.0001
+    ANS=Kmeans(A,K,Precision)
+    print 'Centers are: ',ANS[0],'; labels are',ANS[1]
